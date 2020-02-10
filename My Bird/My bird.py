@@ -32,16 +32,15 @@ class Pipeline(object):                                # 定义一个管道
     def __init__(self):
         """ 定义初始属性 """
         self.Pipex = 400                               # 管道所在X轴坐标
-        self.Pipey = 300
-        self.RePipey = True
+        self.Pipey = 300                               # 管道所在y轴坐标
+        self.RePipey = True                            # 是否随机生成Y轴坐标
+        # 导入上下两根管子的图片
         self.TopPipe = pygame.image.load('./img/Pipeline/top.png')
         self.BottomPipe = pygame.image.load('./img/Pipeline/bottom.png')
 
     def updatePipeline(self):
         """ 定义水平移动 """
-        self.Pipex -= 5
-        if self.Pipex < 50:
-            self.isCreate = True
+        self.Pipex -= 5                                # 向左移动速度
 
 
 def createMap():
@@ -87,4 +86,4 @@ if __name__ == '__main__':
                 Bird.status = 1
                 Bird.speed = 10                # 改变速度
 
-        createMap()
+        createMap()                            # 生成地图
