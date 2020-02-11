@@ -7,7 +7,8 @@ import pygame
 class Bird(object):                                    # 定义一个鸟类
     def __init__(self):
         """ 定义初始属性 """
-        self.birdRect = pygame.Rect(65, 50, 50, 50)    # 鸟的默认矩形 (left, top, width, height)
+        self.game_active = False                       # 默认游戏未开始
+        self.birdRect = pygame.Rect(120, 350, 40, 29)    # 鸟的默认矩形 (left, top, width, height)
         # 定义鸟的3种状态列表
         self.birdStatus = [pygame.image.load("./img/bird/1.png"),
                            pygame.image.load("./img/bird/2.png"),
@@ -31,16 +32,64 @@ class Bird(object):                                    # 定义一个鸟类
 class Pipeline(object):                                # 定义一个管道
     def __init__(self):
         """ 定义初始属性 """
-        self.Pipex = 400                               # 管道所在X轴坐标
-        self.Pipey = 300                               # 管道所在y轴坐标
-        self.RePipey = True                            # 是否随机生成Y轴坐标
+        self.Pipex = -90                               # 管道初始X轴坐标
         # 导入上下两根管子的图片
         self.TopPipe = pygame.image.load('./img/Pipeline/top.png')
         self.BottomPipe = pygame.image.load('./img/Pipeline/bottom.png')
+        # 获取两个管子的矩形
+        self.TopPopeRect = pygame.Rect(-98, 0, 98, 495)
+        self.BottomPipeRect = pygame.Rect(-98, 0, 94, 499)
 
     def updatePipeline(self):
-        """ 定义水平移动 """
-        self.Pipex -= 5                                # 向左移动速度
+        """ 定义管子位置 """
+        self.Pipex -= 5                                        # 向左移动速度
+        self.TopPopeRect[0] = self.Pipex                       # 修改上管道left矩形值
+        self.BottomPipeRect[0] = self.Pipex                    # 修改下管道left矩形值
+
+        if self.Pipex < -98:                                   # 管道彻底移出屏幕左侧
+
+            global score
+            score += 1
+
+            self.Pipex = 400                                   # 重置管道x坐标回右侧
+            Pipey = randint(1, 450)                            # 随机生成一个高度
+            self.TopPopeRect[1] = -Pipey                       # 改变管道top矩形值
+            self.BottomPipeRect[1] = 490 - Pipey + 150
+
+
+def checkDead():
+    # 死亡判定
+    """
+    判断两个矩形是否相交
+    flag = pygame.Rect.colliderect(rect1, rect2)
+    相交返回True 否则返回 Fales
+    存在另一种写法 rect2.colliderect(rect1)
+    """
+    # 鸟与上下管道碰撞
+    if Pipeline.TopPopeRect.colliderect(Bird.birdRect) or Pipeline.BottomPipeRect.colliderect(Bird.birdRect):
+        Bird.dead = True
+        Bird.status = 2
+        return True
+    # 鸟飞出上下边界
+    elif not 0 < Bird.birdRect[1] < height:
+        Bird.dead = True
+        Bird.status = 2
+        return True
+    else:
+        return False
+
+
+def getResutl():
+    final_text1 = "Game Over"
+    final_text2 = "Your final score is:" + str(score)
+
+    ft1_surf = font.render(final_text1, 1, (242, 3, 36))
+    ft2_surf = font.render(final_text2, 1, (253, 177, 6))
+
+    screen.blit(ft1_surf, [screen.get_width() / 2 - ft1_surf.get_width() / 2, screen.get_height() / 2 - ft1_surf.get_height() / 2 + 50])
+    screen.blit(ft2_surf, [screen.get_width() / 2 - ft2_surf.get_width() / 2, screen.get_height() / 2 - ft2_surf.get_height() / 2 - 50])
+
+    pygame.display.flip()
 
 
 def createMap():
@@ -49,19 +98,19 @@ def createMap():
     screen.blit(background, (0, 0))                            # 填入到背景
 
     # 显示管道
-    if Pipeline.RePipey:
-        Pipeline.Pipey = randint(1, 450)
-        Pipeline.RePipey = False
-    screen.blit(Pipeline.TopPipe, (Pipeline.Pipex, -Pipeline.Pipey))
-    screen.blit(Pipeline.BottomPipe, (Pipeline.Pipex, 490 - Pipeline.Pipey + 150))
-    Pipeline.updatePipeline()
-    if Pipeline.Pipex < -80:
-        Pipeline.Pipex = 400
-        Pipeline.RePipey = True
+    screen.blit(Pipeline.TopPipe, Pipeline.TopPopeRect)        # 画出两个管子
+    screen.blit(Pipeline.BottomPipe, Pipeline.BottomPipeRect)
 
     # 显示小鸟
     screen.blit(Bird.birdStatus[Bird.status], Bird.birdRect)   # 设置小鸟的坐标
-    Bird.birdUpdate()                                          # 鸟移动
+
+    # 开始游戏
+    if Bird.game_active:
+        Bird.birdUpdate()                                      # 鸟移动
+        Pipeline.updatePipeline()                              # 管子移动
+        # 显示分数
+        score_surf = font.render('Score:' + str(score), -1, (255, 255, 255))
+        screen.blit(score_surf, [screen.get_width() / 2 - score_surf.get_width() / 2, 50])
 
     pygame.display.update()                                    # 更新显示
 
@@ -71,19 +120,29 @@ if __name__ == '__main__':
     size = width, height = 400, 650            # 设置窗口大小;
     screen = pygame.display.set_mode(size)     # 显示窗口;
 
+    pygame.font.init()                         # 初始化字体
+    font = pygame.font.SysFont("Arial", 50)    # 设置字体和大小
+
     clock = pygame.time.Clock()                # 创建时钟实例
     Pipeline = Pipeline()                      # 创建管道实例
     Bird = Bird()                              # 创建鸟的实例
 
-    background = pygame.image.load("./img/background/background.png")  # 加载背景图片
+    score = -1                                  # 初始分数为-1
+
+    background = pygame.image.load("./img/background/background.png")   # 加载背景图片
 
     while True:                                # 死循环-保持窗口持续显示
         clock.tick(60)                         # 每秒执行60次
         for event in pygame.event.get():       # 遍历事件
             if event.type == pygame.QUIT:      # 如果检测到事件是关闭窗口,就关闭
                 exit()
-            if event.type == pygame.MOUSEBUTTONDOWN and not Bird.dead:
-                Bird.status = 1
-                Bird.speed = 10                # 改变速度
+            if event.type == pygame.MOUSEBUTTONDOWN and not Bird.dead:  # 当鼠标点击，并且鸟没死
+                if not Bird.game_active:
+                    Bird.game_active = True
+                Bird.status = 1                # 改变鸟的状态，更改图片
+                Bird.speed = 12                # 改变速度
 
-        createMap()                            # 生成地图
+        if checkDead():
+            getResutl()                        # 游戏结束，显示得分
+        else:
+            createMap()                        # 生成地图
