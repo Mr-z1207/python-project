@@ -8,7 +8,7 @@ class Bird(object):                                    # 定义一个鸟类
     def __init__(self):
         """ 定义初始属性 """
         self.game_active = False                       # 默认游戏未开始
-        self.birdRect = pygame.Rect(120, 350, 40, 29)    # 鸟的默认矩形 (left, top, width, height)
+        self.birdRect = pygame.Rect(120, 350, 40, 29)  # 鸟的默认矩形 (left, top, width, height)
         # 定义鸟的3种状态列表
         self.birdStatus = [pygame.image.load("./img/bird/1.png"),
                            pygame.image.load("./img/bird/2.png"),
@@ -80,16 +80,17 @@ def checkDead():
 
 
 def getResutl():
-    final_text1 = "Game Over"
-    final_text2 = "Your final score is:" + str(score)
+    final_text1 = "Game Over"                                  # 设置结束文字
+    final_text2 = "Your final score is:" + str(score)          # 设置结束文字（得分）
 
-    ft1_surf = font.render(final_text1, 1, (242, 3, 36))
+    ft1_surf = font.render(final_text1, 1, (242, 3, 36))       # 创建文字surf对象
     ft2_surf = font.render(final_text2, 1, (253, 177, 6))
 
+    # 将文字画到屏幕上
     screen.blit(ft1_surf, [screen.get_width() / 2 - ft1_surf.get_width() / 2, screen.get_height() / 2 - ft1_surf.get_height() / 2 + 50])
     screen.blit(ft2_surf, [screen.get_width() / 2 - ft2_surf.get_width() / 2, screen.get_height() / 2 - ft2_surf.get_height() / 2 - 50])
 
-    pygame.display.flip()
+    pygame.display.flip()                                     # 更新显示
 
 
 def createMap():
@@ -137,8 +138,8 @@ if __name__ == '__main__':
             if event.type == pygame.QUIT:      # 如果检测到事件是关闭窗口,就关闭
                 exit()
             if event.type == pygame.MOUSEBUTTONDOWN and not Bird.dead:  # 当鼠标点击，并且鸟没死
-                if not Bird.game_active:
-                    Bird.game_active = True
+                if not Bird.game_active:       # 如果游戏未开始
+                    Bird.game_active = True    # 改变游戏状态为开始
                 Bird.status = 1                # 改变鸟的状态，更改图片
                 Bird.speed = 12                # 改变速度
 
