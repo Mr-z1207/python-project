@@ -117,6 +117,7 @@ def createMap():
 if __name__ == '__main__':
     pygame.init()                              # 初始化pygame;
     size = width, height = 400, 650            # 设置窗口大小;
+    pygame.display.set_caption('My Bird')      # 设置窗口标题;
     screen = pygame.display.set_mode(size)     # 显示窗口;
 
     pygame.font.init()                         # 初始化字体
