@@ -105,7 +105,7 @@ def createMap():
 
     # 开始游戏
     if Bird.game_active:
-        Bird.birdUpdate()                                      # 鸟移动
+        Bird.birdUpdate()                                      # 小鸟移动
         Pipeline.updatePipeline()                              # 管子移动
         # 显示分数
         score_surf = font.render('Score:' + str(score), -1, (255, 255, 255))
